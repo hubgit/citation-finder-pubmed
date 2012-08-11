@@ -44,7 +44,7 @@ Views.Citation = Backbone.View.extend({
 						query.push(authorsQuery);
 					}
 
-					if (data.journal) query.push(data.journal.replace(/(\w+)/g, " $1") + "[TA]");
+					if (data.title) query.push(data.title.replace(/(\w+)/g, " $1") + "[TA]");
 
 					if (data.year) query.push(data.year + "[DP]");
 					if (data.volume) query.push(data.volume + "[VI]");
