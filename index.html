@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<meta charset="utf-8">
+
+<title>Citation Finder</title>
+
+<!-- services -->
+
+<link rel="service.pubmed" href="http://pubmed.macropus.org/articles/">
+
+<!-- styles -->
+
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/article.css">
+
+<!-- scripts -->
+
+<script src="vendor/jquery/jquery.js"></script>
+<script src="vendor/jquery/jquery.pluralise.js"></script>
+<script src="vendor/jquery/jquery.formatAuthors.js"></script>
+
+<script src="vendor/underscore.js"></script>
+<script src="vendor/backbone.js"></script>
+<script src="vendor/handlebars.js"></script>
+
+<script src="js/templates.js"></script>
+<script src="js/services.js"></script>
+<script src="js/models.js"></script>
+<script src="js/collections.js"></script>
+<script src="js/views.js"></script>
+<script src="js/app.js"></script>
+
+<!-- templates -->
+
+<script type="text/html" data-template="Input">
+	<form>
+		<textarea property="input"></textarea>
+		<input type="submit" value="split">
+	</form>
+
+	<ul property="items"></ul>
+</script>
+
+<script type="text/html" data-template="Citation">
+	<textarea property="text">{{text}}</textarea>
+
+	<div><input type="button" data-action="parse" value="parse"></div>
+
+	<table>
+		<tr><th>Journal</th><td>{{title}}</td></tr>
+		<tr><th>Authors</th><td>{{authorsList}}</td></tr>
+		<tr><th>Year</th><td>{{year}}</td></tr>
+		<tr><th>Volume</th><td>{{volume}}</td></tr>
+	</table>
+
+	<textarea property="query">{{query}}</textarea>
+
+	<div><input type="button" data-action="search" value="search"></div>
+
+	{{#if article}}
+	<article vocab="http://schema.org/" typeof="MedicalScholarlyArticle">
+	{{#with article}}
+	<header>
+		<a property="url" target="blank" href="{{#if identifier.doi}}http://dx.doi.org/{{identifier.doi}}{{else}}http://eutils.ncbi.nlm.nih.gov/entrez/eutils/elink.fcgi?dbfrom=pubmed&cmd=prlinks&retmode=ref&id={{identifier.pubmed}}{{/if}}"><span property="name">{{titleInfo.title}}.</span></a>
+
+		<div property="creators">
+			{{#each name}}<span property="creator">{{#each given}}{{.}} {{/each}}{{#each family}} {{.}}{{/each}}</span>{{/each}}
+		</div>
+
+		<div property="citation">
+		{{#with host}}
+			<span property="journal" title="{{full}}" >{{#if titleInfo.abbreviated}}{{titleInfo.abbreviated}}{{else}}{{titleInfo.full}}{{/if}}</span>. <abbr property="datePublished">{{part.date}}</abbr>{{#if part.detail}}; {{#with part.detail}}{{#if volume}} <span property="volume">{{volume}}</span>{{/if}}{{#if issue}}(<span property="issue" href="./?term={{../../identifier.issn}} [ISSN] AND {{issue}} [Issue]">{{issue}}</span>){{/if}}{{#if page}}: <span property="pagination">{{page}}</span>{{/if}}{{/with}}{{/if}}
+		{{/with}}
+		</div>
+	</header>
+
+	<section>
+		{{#if abstract}}
+		<p property="abstract">{{abstract}}</p>
+		{{else}}
+		<p class="abstract">No abstract available</p>
+		{{/if}}
+	</section>
+
+	<footer></footer>
+	{{/with}}
+	</article>
+	{{/if}}
+</script>
+

@@ -1,0 +1,20 @@
+body {
+	font-family: sans-serif;
+}
+
+textarea {
+	width: 800px;
+	height: 40px;
+}
+
+textarea[property="input"] {
+	height: 200px;
+}
+
+[hidden], .hidden {
+    display: none;
+}
+
+a {
+	text-decoration: none;
+}

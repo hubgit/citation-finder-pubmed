@@ -1,0 +1,40 @@
+[typeof=MedicalScholarlyArticle] [property=url] {
+    color: inherit;
+    padding: 5px 0;
+    display: block;
+    margin-left: -10px;
+}
+
+[typeof=MedicalScholarlyArticle] [property=creator] {
+    white-space: nowrap;
+    color: gray;
+}
+
+[typeof=MedicalScholarlyArticle] [property=citation] {
+    color: #270;
+}
+
+[typeof=MedicalScholarlyArticle] [property=citation] a {
+    color: inherit;
+}
+
+[typeof=MedicalScholarlyArticle] section {
+    font-family: Optima, Arial, Verdana, Helvetica, serif;
+    text-align: justify;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: none;
+}
+
+[typeof=MedicalScholarlyArticle] footer {
+    margin-top: 5px;
+    color: gray;
+    font-size: 90%;
+}
+
+[typeof=MedicalScholarlyArticle] .et-al {
+    font-style: italic;
+    white-space: nowrap;
+    color: lightSlateGray;
+}
+
