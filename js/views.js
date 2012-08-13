@@ -171,7 +171,7 @@ Views.Input = Backbone.View.extend({
 
 		var items = [];
 
-		text.split("-split-").forEach(function(item) {
+		text.split(/-split-/g).forEach(function(item) {
 			if(item.length) items.push({ text: item });
 		});
 
