@@ -3,6 +3,8 @@ var Views = {};
 Views.Citation = Backbone.View.extend({
 	tagName: "li",
 
+	className: "citation",
+
 	events: {
 		"click [data-action]": "action"
 	},
@@ -14,6 +16,7 @@ Views.Citation = Backbone.View.extend({
 
 	render: function() {
 		var data = this.model.toJSON();
+		console.log(data);
 		var html = Templates.Citation(data);
 
 		this.$el.empty().append(html);
@@ -51,7 +54,7 @@ Views.Citation = Backbone.View.extend({
 
 					data.query = query.join(" AND ");
 
-					model.set(data);
+					model.set({ parsed: data });
 				});
 			break;
 
@@ -116,10 +119,13 @@ Views.Citations = Backbone.View.extend({
 	render: function() {
 		//var html = Templates.Citations();
 		//this.$el.empty().append(html);
+		this.$("textarea").expandingTextarea();
 	},
 });
 
 Views.Input = Backbone.View.extend({
+	tagName: "form",
+
 	initialize: function() {
 		this.render();
 	},
@@ -127,10 +133,11 @@ Views.Input = Backbone.View.extend({
 	render: function() {
 		var html = Templates.Input();
 		this.$el.empty().append(html);
+		this.$("textarea").expandingTextarea();
 	},
 
 	events: {
-		"submit form": "splitCitations"
+		"submit": "splitCitations"
 	},
 
 	splitCitations: function(event) {
@@ -153,18 +160,19 @@ Views.Input = Backbone.View.extend({
 	    else if (text.match(/^\# /)) {
 			text = text.replace(/\n(\#\s)/ig, "-split-$1"); // numbered list with square brackets
 		}
-		else {
-			text = text.replace(/(\d\.?).\n/ig, "$1-split-"); // unnumbered list
+		else if (text.match(/(\d\.?).\n/)) {
+			text = text.replace(/(\d\.?).\n/ig, "$1-split-"); // numbered list
 		}
+		else {
+			text = text.replace(/\n/ig, "-split-"); // numbered list
+		}
+
+		text = text.replace(/\s+/, " ");
 
 		var items = [];
 
-		text.split("-split-").forEach(function(text) {
-			var item = {
-				text: text
-			};
-
-			items.push(item);
+		text.split("-split-").forEach(function(item) {
+			if(item.length) items.push({ text: item });
 		});
 
 		console.log(items);

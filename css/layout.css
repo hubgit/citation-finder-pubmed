@@ -3,12 +3,7 @@ body {
 }
 
 textarea {
-	width: 800px;
-	height: 40px;
-}
-
-textarea[property="input"] {
-	height: 200px;
+	width: 80%;
 }
 
 [hidden], .hidden {
@@ -17,4 +12,12 @@ textarea[property="input"] {
 
 a {
 	text-decoration: none;
+}
+
+#input {
+	padding: 5px;
+}
+
+.citation {
+	margin-bottom: 10px;
 }

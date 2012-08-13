@@ -10,6 +10,7 @@
 
 <!-- styles -->
 
+<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.css">
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/article.css">
 
@@ -18,6 +19,7 @@
 <script src="vendor/jquery/jquery.js"></script>
 <script src="vendor/jquery/jquery.pluralise.js"></script>
 <script src="vendor/jquery/jquery.formatAuthors.js"></script>
+<script src="vendor/jquery/jquery.expandingTextarea.js"></script>
 
 <script src="vendor/underscore.js"></script>
 <script src="vendor/backbone.js"></script>
@@ -33,12 +35,8 @@
 <!-- templates -->
 
 <script type="text/html" data-template="Input">
-	<form>
-		<textarea property="input"></textarea>
-		<input type="submit" value="split">
-	</form>
-
-	<ul property="items"></ul>
+	<textarea property="input">Ochsenbein, A. F., D. D. Pinschewer, B. Odermatt, M. C. Carroll, H. Hengartner, and R. M. Zinkernagel. 1999. Protective T cell-independent antiviral antibody responses are dependent on complement. J. Exp. Med. 190:1165.</textarea>
+	<div><input type="submit" value="split"></div>
 </script>
 
 <script type="text/html" data-template="Citation">
@@ -46,16 +44,20 @@
 
 	<div><input type="button" data-action="parse" value="parse"></div>
 
+	{{#if parsed}}
+	{{#with parsed}}
 	<table>
-		<tr><th>Journal</th><td>{{title}}</td></tr>
-		<tr><th>Authors</th><td>{{authorsList}}</td></tr>
-		<tr><th>Year</th><td>{{year}}</td></tr>
-		<tr><th>Volume</th><td>{{volume}}</td></tr>
+		<tr><th><span class="label">Journal</span></th><td>{{title}}</td></tr>
+		<tr><th><span class="label">Authors</span></th><td>{{authorsList}}</td></tr>
+		<tr><th><span class="label">Year</span></th><td>{{year}}</td></tr>
+		<tr><th><span class="label">Volume</span></th><td>{{volume}}</td></tr>
 	</table>
 
 	<textarea property="query">{{query}}</textarea>
 
 	<div><input type="button" data-action="search" value="search"></div>
+	{{/with}}
+	{{/if}}
 
 	{{#if article}}
 	<article vocab="http://schema.org/" typeof="MedicalScholarlyArticle">
