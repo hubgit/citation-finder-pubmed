@@ -7,14 +7,31 @@ $(function() {
     });
 });
 
-Handlebars.registerHelper("authorSearchComma", function(given) {
-	var initials = true;
+Handlebars.registerHelper("pluralise", $.pluralise);
 
-	$.each(given, function() {
-		if (this.match(/[a-z]/)) initials = false;
-	});
-
-	return initials ? "" : ",";
+Handlebars.registerHelper("authorList", function(items) {
+	return items.join("; ");
 });
 
-Handlebars.registerHelper("pluralise", $.pluralise);
+Handlebars.registerHelper("pubmedQuery", function(data) {
+	var query = [];
+
+	if (data.authors.length) {
+		var authorsQuery = data.authors.join("[AU] AND ") + "[AU]";
+		query.push(authorsQuery);
+	}
+
+	if (data.title) {
+		query.push(data.title.replace(/(\w+)/g, " $1") + "[TA]");
+	}
+
+	if (data.year) {
+		query.push(data.year + "[DP]");
+	}
+
+	if (data.volume) {
+		query.push(data.volume + "[VI]");
+	}
+
+	return query.join(" AND ");
+});

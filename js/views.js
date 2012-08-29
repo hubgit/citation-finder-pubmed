@@ -18,6 +18,8 @@ Views.Citation = Backbone.View.extend({
 
 		this.$el.empty().append(html);
 		this.$("[property=creators]").formatAuthors(5, "creator");
+		this.$("button").addClass("btn");
+		this.$("textarea").elastic();
 		return this;
 	},
 
@@ -25,46 +27,33 @@ Views.Citation = Backbone.View.extend({
 		event.preventDefault();
 		event.stopPropagation();
 
-		var $node = $(event.currentTarget);
-		var action = $node.data("action");
+		var node = $(event.currentTarget);
+		var action = node.data("action");
 
 		var model = this.model;
 
 		switch (action) {
 			case "parse":
+				node.html("parsing&hellip;");
 				var input = this.$("textarea[property=text]");
 				this.parse(input.val()).done(function(data) {
-					console.log(data);
-					data.authorsList = data.authors.join("; ");
-
-					var query = [];
-
-					if (data.authors.length) {
-						var authorsQuery = data.authors.join("[AU] AND ") + "[AU]";
-						query.push(authorsQuery);
-					}
-
-					if (data.title) query.push(data.title.replace(/(\w+)/g, " $1") + "[TA]");
-
-					if (data.year) query.push(data.year + "[DP]");
-					if (data.volume) query.push(data.volume + "[VI]");
-
-					data.query = query.join(" AND ");
-
-					model.set(data);
+					node.html("parse");
+					model.set("parsed", data);
 				});
 			break;
 
 			case "search":
+				node.html("searching&hellip;");
 				var input = this.$("textarea[property=query]");
-				this.search(input.val());
+				this.search(input.val()).done(function() {
+					node.html("search");
+				});
 			break;
 		}
 	},
 
 	parse: function(text) {
-		console.log(text);
-		return $.ajax({
+		return $.ajaxQueue({
 			url: "http://www.hubmed.org/citation-min.cgi",
 			data: { text: text },
 		})
@@ -75,20 +64,24 @@ Views.Citation = Backbone.View.extend({
 
 		var model = this.model;
 
-		app.services.pubmed.search(text).done(function(doc) {
-			var data = {
-				Count: document.evaluate("/eSearchResult/Count", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
-				WebEnv: document.evaluate("/eSearchResult/WebEnv", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
-				QueryKey: document.evaluate("/eSearchResult/QueryKey", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent
-			};
+		return $.Deferred(function(dfd) {
+			app.services.pubmed.search(text).done(function(doc) {
+				var data = {
+					Count: document.evaluate("/eSearchResult/Count", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
+					WebEnv: document.evaluate("/eSearchResult/WebEnv", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
+					QueryKey: document.evaluate("/eSearchResult/QueryKey", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent
+				};
 
-			console.log(data);
-
-			if (!data.Count) return;
-
-			app.services.pubmed.history(data).done(function(data) {
 				console.log(data);
-				model.set({ article: data.items[0] });
+
+				if (!data.Count) return;
+
+				app.services.pubmed.history(data).done(function(data) {
+					console.log(data);
+					model.set({ article: data.items[0] });
+					dfd.resolve();
+					return dfd.promise();
+				});
 			});
 		});
 	},
@@ -105,6 +98,7 @@ Views.Citations = Backbone.View.extend({
 
 	reset: function() {
 		this.$el.empty();
+		console.log(this.collection);
 		this.collection.forEach(this.add, this);
 	},
 
@@ -120,6 +114,8 @@ Views.Citations = Backbone.View.extend({
 });
 
 Views.Input = Backbone.View.extend({
+	id: "input",
+
 	initialize: function() {
 		this.render();
 	},
@@ -127,6 +123,7 @@ Views.Input = Backbone.View.extend({
 	render: function() {
 		var html = Templates.Input();
 		this.$el.empty().append(html);
+		this.$("textarea").elastic();
 	},
 
 	events: {
@@ -141,33 +138,31 @@ Views.Input = Backbone.View.extend({
 		var text = this.$("textarea").val();
 		text = $.trim(text);
 
-		if (text.match(/^(\d){1,3}\.\s/)) {
-			text = text.replace(/\n((\d){1,3}\.\s)/ig, "-split-$1"); // numbered list with dot
+		if (text.match(/^\d{1,3}\.\s/)) {
+			text = text.replace(/(\n|^)\d{1,3}\.\s/ig, "-split-"); // numbered list with dot
 		}
-		else if (text.match(/^(\d){1,3}\s/)) {
-			text = text.replace(/\n((\d){1,3}\s)/ig, "-split-$1"); // numbered list without dot
+		else if (text.match(/^\d{1,3}\s/)) {
+			text = text.replace(/(\n|^)\d{1,3}\s/ig, "-split-"); // numbered list without dot
 		}
-		else if (text.match(/^\[(\d){1,3}\]\s/)) {
-			text = text.replace(/\n(\[(\d){1,3}\]\s)/ig, "-split-$1"); // numbered list with square brackets
+		else if (text.match(/^\[\d{1,3}\]\s/)) {
+			text = text.replace(/(\n|^)\[\d{1,3}\]\s/ig, "-split-"); // numbered list with square brackets
 		}
 	    else if (text.match(/^\# /)) {
-			text = text.replace(/\n(\#\s)/ig, "-split-$1"); // numbered list with square brackets
+			text = text.replace(/\n|^)\#\s/ig, "-split-"); // numbered list with square brackets
 		}
 		else {
-			text = text.replace(/(\d\.?).\n/ig, "$1-split-"); // unnumbered list
+			text = text.replace(/\d\.?.\n/ig, "-split-"); // unnumbered list
 		}
 
 		var items = [];
 
-		text.split("-split-").forEach(function(text) {
-			var item = {
-				text: text
-			};
+		text.split("-split-").forEach(function(item) {
+			item = $.trim(item);
+			if (!item.length) return true;
 
-			items.push(item);
+			items.push({ text: item });
 		});
 
-		console.log(items);
 		app.collections.citations.reset(items);
 	}
 });

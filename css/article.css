@@ -1,6 +1,5 @@
 [typeof=MedicalScholarlyArticle] [property=url] {
     color: inherit;
-    padding: 5px 0;
     display: block;
     margin-left: -10px;
 }
@@ -38,3 +37,14 @@
     color: lightSlateGray;
 }
 
+a.link:not(:last-child) {
+    margin-right: 10px;
+}
+
+a.link {
+    white-space: nowrap;
+}
+
+a[rel="export"]::before {
+    content: "⇣ ";
+}

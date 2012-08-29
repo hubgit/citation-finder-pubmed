@@ -10,14 +10,19 @@
 
 <!-- styles -->
 
+<link rel="stylesheet" href="vendor/bootstrap/bootstrap.css">
+
 <link rel="stylesheet" href="css/layout.css">
 <link rel="stylesheet" href="css/article.css">
+<link rel="stylesheet" href="css/loading.css">
 
 <!-- scripts -->
 
 <script src="vendor/jquery/jquery.js"></script>
 <script src="vendor/jquery/jquery.pluralise.js"></script>
 <script src="vendor/jquery/jquery.formatAuthors.js"></script>
+<script src="vendor/jquery/jquery.elastic.js"></script>
+<script src="vendor/jquery/jquery.ajaxQueue.js"></script>
 
 <script src="vendor/underscore.js"></script>
 <script src="vendor/backbone.js"></script>
@@ -34,8 +39,13 @@
 
 <script type="text/html" data-template="Input">
 	<form>
-		<textarea property="input"></textarea>
-		<input type="submit" value="split">
+		<textarea property="input">1. Bird A (2002) DNA methylation patterns and epigenetic memory. Genes Dev 16: 6–21.
+2. Okano M, Bell DW, Haber DA, Li E (1999) DNA methyltransferases Dnmt3a and Dnmt3b are essential for de novo methylation and mammalian development. Cell 99: 247–257.
+3. Robert MF, Morin S, Beaulieu N, Gauthier F, Chute IC, et al. (2003) DNMT1 is required to maintain CpG methylation and aberrant gene silencing in human cancer cells. Nat Genet 33: 61–65.
+4. Bourc’his D, Xu GL, Lin CS, Bollman B, Bestor TH (2001) Dnmt3L and the establishment of maternal genomic imprints. Science 294: 2536–2539.
+5. Hata K, Okano M, Lei H, Li E (2002) Dnmt3L cooperates with the Dnmt3 family of de novo DNA methyltransferases to establish maternal imprints in mice. Development 129: 1983–1993.
+6. Kaneda M, Okano M, Hata K, Sado T, Tsujimoto N, et al. (2004) Essential role for de novo DNA methyltransferase Dnmt3a in paternal and maternal imprinting. Nature 429: 900–903.</textarea>
+		<input type="submit" value="split" class="btn btn-primary">
 	</form>
 
 	<ul property="items"></ul>
@@ -44,18 +54,24 @@
 <script type="text/html" data-template="Citation">
 	<textarea property="text">{{text}}</textarea>
 
-	<div><input type="button" data-action="parse" value="parse"></div>
+	<button data-action="parse">parse</button>
+
+	{{#if parsed}}
+	{{#with parsed}}
 
 	<table>
 		<tr><th>Journal</th><td>{{title}}</td></tr>
-		<tr><th>Authors</th><td>{{authorsList}}</td></tr>
+		<tr><th>Authors</th><td>{{#authorList authors}}{{/authorList}}</td></tr>
 		<tr><th>Year</th><td>{{year}}</td></tr>
 		<tr><th>Volume</th><td>{{volume}}</td></tr>
 	</table>
 
-	<textarea property="query">{{query}}</textarea>
+	{{/with}}
 
-	<div><input type="button" data-action="search" value="search"></div>
+	<textarea property="query">{{#pubmedQuery parsed}}{{/pubmedQuery}}</textarea>
+
+	<button data-action="search">search</button>
+	{{/if}}
 
 	{{#if article}}
 	<article vocab="http://schema.org/" typeof="MedicalScholarlyArticle">
@@ -82,7 +98,10 @@
 		{{/if}}
 	</section>
 
-	<footer></footer>
+	<footer>
+		<a class="link" rel="export" href="http://pubmed.macropus.org/articles/?format=text%2Fbibtex&amp;id={{identifier.pubmed}}" type="text/bibtex">BibTeX</a>
+		<a class="link" rel="export" href="http://pubmed.macropus.org/articles/?format=application%2Fresearch-info-systems&amp;id={{identifier.pubmed}}" type="application/research-info-systems">RIS</a>
+	</footer>
 	{{/with}}
 	</article>
 	{{/if}}
