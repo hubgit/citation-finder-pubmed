@@ -23,6 +23,11 @@ Views.Citation = Backbone.View.extend({
 		this.$("[property=creators]").formatAuthors(5, "creator");
 		this.$("button").addClass("btn");
 		//this.$("textarea").expandingTextarea();
+
+		if (!this.model.get("parsed")) {
+			this.runParse();
+		}
+
 		return this;
 	},
 
@@ -30,29 +35,56 @@ Views.Citation = Backbone.View.extend({
 		event.preventDefault();
 		event.stopPropagation();
 
-		var node = $(event.currentTarget);
-		var action = node.data("action");
-
-		var model = this.model;
+		var action = $(event.currentTarget).data("action");
 
 		switch (action) {
 			case "parse":
-				node.html("parsing&hellip;");
-				var input = this.$("textarea[property=text]");
-				this.parse(input.val()).done(function(data) {
-					node.html("parse");
-					model.set("parsed", data);
-				});
+				this.runParse();
 			break;
 
 			case "search":
-				node.html("searching&hellip;");
-				var input = this.$("textarea[property=query]");
-				this.search(input.val()).done(function() {
-					node.html("search");
-				});
+				this.runSearch();
 			break;
 		}
+	},
+
+	runParse: function() {
+		var model = this.model;
+		var view = this;
+
+		var node = this.$("[data-action=parse]");
+		node.html("parsing&hellip;");
+
+		var query = this.$("textarea[property=text]").val();
+
+		this.parse(query)
+			.done(function(data) {
+				node.html("parse");
+				model.set({ parsed: data, article: null });
+				view.runSearch();
+			})
+			.fail(function(data) {
+				node.html("parse");
+			});
+	},
+
+	runSearch: function() {
+		var node = this.$("[data-action=search]");
+		node.html("searching&hellip;");
+
+		var model = this.model;
+
+		var query = this.$("textarea[property=query]").val();
+
+		this.search(query)
+			.done(function(data) {
+				node.html("search");
+				model.set("article",  data);
+			})
+			.fail(function() {
+				node.html("search");
+				model.set("article",  null);
+			});
 	},
 
 	parse: function(text) {
@@ -67,16 +99,15 @@ Views.Citation = Backbone.View.extend({
 
 		return $.Deferred(function(dfd) {
 			app.services.pubmed.search(text).done(function(doc) {
-				var data = {
-					Count: document.evaluate("/eSearchResult/Count", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
-					Id: document.evaluate("/eSearchResult/IdList/Id", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
-				};
 
-				if (!data.Count) return;
+				var id = document.evaluate("/eSearchResult/IdList/Id", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+				if (!id) {
+					dfd.reject();
+					return dfd.promise();
+				}
 
-				app.services.pubmed.fetch({ id: data.Id }).done(function(data) {
-					model.set({ article: data[0] });
-					dfd.resolve();
+				app.services.pubmed.fetch({ id: id.textContent }).done(function(data) {
+					dfd.resolve(data[0]);
 					return dfd.promise();
 				});
 			});

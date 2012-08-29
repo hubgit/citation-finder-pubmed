@@ -40,7 +40,7 @@ button, input[type=submit] {
 }
 
 th, td {
-	padding: 2px 5px;
+	padding: 0 5px;
 	vertical-align: middle;
 }
 

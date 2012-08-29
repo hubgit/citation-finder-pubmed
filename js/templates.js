@@ -33,5 +33,9 @@ Handlebars.registerHelper("pubmedQuery", function(data) {
 		query.push(data.volume + "[VI]");
 	}
 
+	//if (data.spage) {
+		//query.push(data.spage + "[PG]");
+	//}
+
 	return query.join(" AND ");
 });
