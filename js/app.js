@@ -18,14 +18,12 @@ var init = function() {
 	};
 
 	app.views = {
-		input: new Views.Input({ model: app.models.input }),
-		citations: new Views.Citations({ collection: app.collections.citations }),
+		input: new Views.Input({ model: app.models.input, id: "input" }),
+		citations: new Views.Citations({ collection: app.collections.citations, id: "citations" }),
 	};
 
 	app.views.input.$el.appendTo("body");
 	app.views.citations.$el.appendTo("body");
-
-	//app.views.input.$("form").submit();
 };
 
 $(init);

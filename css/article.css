@@ -1,7 +1,7 @@
 [typeof=MedicalScholarlyArticle] [property=url] {
     color: inherit;
+    padding: 5px 0;
     display: block;
-    margin-left: -10px;
 }
 
 [typeof=MedicalScholarlyArticle] [property=creator] {
@@ -22,7 +22,6 @@
     text-align: justify;
     margin-top: 10px;
     margin-bottom: 10px;
-    display: none;
 }
 
 [typeof=MedicalScholarlyArticle] footer {

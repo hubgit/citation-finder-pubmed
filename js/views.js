@@ -3,6 +3,8 @@ var Views = {};
 Views.Citation = Backbone.View.extend({
 	tagName: "li",
 
+	className: "citation",
+
 	events: {
 		"click [data-action]": "action"
 	},
@@ -14,12 +16,13 @@ Views.Citation = Backbone.View.extend({
 
 	render: function() {
 		var data = this.model.toJSON();
+		console.log(data);
 		var html = Templates.Citation(data);
 
 		this.$el.empty().append(html);
 		this.$("[property=creators]").formatAuthors(5, "creator");
 		this.$("button").addClass("btn");
-		this.$("textarea").elastic();
+		//this.$("textarea").expandingTextarea();
 		return this;
 	},
 
@@ -110,11 +113,13 @@ Views.Citations = Backbone.View.extend({
 	render: function() {
 		//var html = Templates.Citations();
 		//this.$el.empty().append(html);
+		//this.$("textarea").expandingTextarea();
 	},
 });
 
 Views.Input = Backbone.View.extend({
 	id: "input",
+	tagName: "form",
 
 	initialize: function() {
 		this.render();
@@ -123,11 +128,11 @@ Views.Input = Backbone.View.extend({
 	render: function() {
 		var html = Templates.Input();
 		this.$el.empty().append(html);
-		this.$("textarea").elastic();
+		//this.$("textarea").expandingTextarea();
 	},
 
 	events: {
-		"submit form": "splitCitations"
+		"submit": "splitCitations"
 	},
 
 	splitCitations: function(event) {
@@ -150,17 +155,23 @@ Views.Input = Backbone.View.extend({
 	    else if (text.match(/^\# /)) {
 			text = text.replace(/\n|^)\#\s/ig, "-split-"); // numbered list with square brackets
 		}
-		else {
-			text = text.replace(/\d\.?.\n/ig, "-split-"); // unnumbered list
+		else if (text.match(/\d\.?.\n/)) {
+			text = text.replace(/\d\.?.\n/ig, "-split-"); // numbered list
 		}
+		else {
+			text = text.replace(/\n/ig, "-split-"); // numbered list
+		}
+
+		text = text.replace(/\s+/, " ");
 
 		var items = [];
 
-		text.split("-split-").forEach(function(item) {
+		text.split(/-split-/g).forEach(function(item) {
 			item = $.trim(item);
-			if (!item.length) return true;
 
-			items.push({ text: item });
+			if (item.length) {
+				items.push({ text: item });
+			}
 		});
 
 		app.collections.citations.reset(items);
