@@ -63,25 +63,19 @@ Views.Citation = Backbone.View.extend({
 	},
 
 	search: function(text) {
-		console.log(text);
-
 		var model = this.model;
 
 		return $.Deferred(function(dfd) {
 			app.services.pubmed.search(text).done(function(doc) {
 				var data = {
 					Count: document.evaluate("/eSearchResult/Count", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
-					WebEnv: document.evaluate("/eSearchResult/WebEnv", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
-					QueryKey: document.evaluate("/eSearchResult/QueryKey", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent
+					Id: document.evaluate("/eSearchResult/IdList/Id", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.textContent,
 				};
-
-				console.log(data);
 
 				if (!data.Count) return;
 
-				app.services.pubmed.history(data).done(function(data) {
-					console.log(data);
-					model.set({ article: data.items[0] });
+				app.services.pubmed.fetch({ id: data.Id }).done(function(data) {
+					model.set({ article: data[0] });
 					dfd.resolve();
 					return dfd.promise();
 				});

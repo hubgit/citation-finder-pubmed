@@ -16,8 +16,8 @@ var PubMed = function(options) {
 	this.search = function(term) {
 		var data = {
 			db: "pubmed",
-			usehistory: "y",
-			retmax: 0,
+			usehistory: "n",
+			retmax: 1,
 			term: term
 		};
 
@@ -26,6 +26,10 @@ var PubMed = function(options) {
 
 	this.history = function(data) {
 		data = { total: data.Count, history: data.WebEnv + "|" + data.QueryKey };
+		return this.get({ url: this.url, data: data });
+	};
+
+	this.fetch = function(data) {
 		return this.get({ url: this.url, data: data });
 	};
 };
