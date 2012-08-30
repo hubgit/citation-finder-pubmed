@@ -1,8 +1,6 @@
-var app = {};
+$.ajaxSetup({ cache: false });
 
-$.ajaxSetup({
-    cache: false
-});
+var app = {};
 
 var init = function() {
 	app.services = {

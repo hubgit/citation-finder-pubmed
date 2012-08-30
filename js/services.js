@@ -24,11 +24,6 @@ var PubMed = function(options) {
 		return this.get({ url: "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi", data: data });
 	};
 
-	this.history = function(data) {
-		data = { total: data.Count, history: data.WebEnv + "|" + data.QueryKey };
-		return this.get({ url: this.url, data: data });
-	};
-
 	this.fetch = function(data) {
 		return this.get({ url: this.url, data: data });
 	};

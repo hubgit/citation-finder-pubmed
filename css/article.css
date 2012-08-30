@@ -30,7 +30,7 @@
     font-size: 90%;
 }
 
-[typeof=MedicalScholarlyArticle] .et-al {
+.et-al {
     font-style: italic;
     white-space: nowrap;
     color: lightSlateGray;

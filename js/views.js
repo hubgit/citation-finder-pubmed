@@ -16,7 +16,6 @@ Views.Citation = Backbone.View.extend({
 
 	render: function() {
 		var data = this.model.toJSON();
-		console.log(data);
 		var html = Templates.Citation(data);
 
 		this.$el.empty().append(html);
@@ -121,25 +120,17 @@ Views.Citations = Backbone.View.extend({
 	initialize: function() {
 		this.collection.on("reset", this.reset, this);
 		this.collection.on("add", this.add, this);
-		//this.render();
 	},
 
 	reset: function() {
 		this.$el.empty();
-		console.log(this.collection);
 		this.collection.forEach(this.add, this);
 	},
 
 	add: function(model) {
 		var view = new Views.Citation({ model: model });
 		this.$el.append(view.render().$el);
-	},
-
-	render: function() {
-		//var html = Templates.Citations();
-		//this.$el.empty().append(html);
-		//this.$("textarea").expandingTextarea();
-	},
+	}
 });
 
 Views.Input = Backbone.View.extend({
