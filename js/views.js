@@ -169,13 +169,13 @@ Views.Input = Backbone.View.extend({
 			text = text.replace(/(\n|^)\[\d{1,3}\]\s/g, "-split-"); // numbered list with square brackets
 		}
 		else if (text.match(/^\# /)) {
-			text = text.replace(/(\n|^)\#\s/g, "-split-"); // numbered list with square brackets
+			text = text.replace(/(\n|^)\#\s/g, "-split-"); // un-numbered list with hash
 		}
 		else if (text.match(/\d\.?.\n/)) {
 			text = text.replace(/\d\.?.\n/g, "-split-"); // numbered list
 		}
 		else {
-			text = text.replace(/\n/g, "-split-"); // numbered list
+			text = text.replace(/\n/g, "-split-"); // un-numbered list
 		}
 
 		text = text.replace(/\s+/, " ");
