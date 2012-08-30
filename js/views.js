@@ -168,7 +168,7 @@ Views.Input = Backbone.View.extend({
 		else if (text.match(/^\[\d{1,3}\]\s/)) {
 			text = text.replace(/(\n|^)\[\d{1,3}\]\s/g, "-split-"); // numbered list with square brackets
 		}
-	    else if (text.match(/^\# /)) {
+		else if (text.match(/^\# /)) {
 			text = text.replace(/(\n|^)\#\s/g, "-split-"); // numbered list with square brackets
 		}
 		else if (text.match(/\d\.?.\n/)) {
