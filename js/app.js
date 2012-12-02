@@ -18,10 +18,12 @@ var init = function() {
 	app.views = {
 		input: new Views.Input({ model: app.models.input, id: "input" }),
 		citations: new Views.Citations({ collection: app.collections.citations, id: "citations" }),
+		download: new Views.Download({ id: "download-all"})
 	};
 
 	app.views.input.$el.appendTo("body");
 	app.views.citations.$el.appendTo("body");
+	app.views.download.$el.appendTo("body");
 };
 
 $(init);

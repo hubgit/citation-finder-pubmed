@@ -6,7 +6,7 @@ Views.Citation = Backbone.View.extend({
 	className: "citation",
 
 	events: {
-		"click [data-action]": "action"
+		"submit form": "runSearch"
 	},
 
 	initialize: function() {
@@ -21,59 +21,20 @@ Views.Citation = Backbone.View.extend({
 		this.$el.empty().append(html);
 		this.$("[property=creators]").formatAuthors(5, "creator");
 		this.$("button").addClass("btn");
-		//this.$("textarea").expandingTextarea();
-
-		if (!this.model.get("parsed")) {
-			this.runParse();
-		}
 
 		return this;
 	},
 
-	action: function(event) {
+	runSearch: function(event) {
 		event.preventDefault();
-		event.stopPropagation();
 
-		var action = $(event.currentTarget).data("action");
-
-		switch (action) {
-			case "parse":
-				this.runParse();
-			break;
-
-			case "search":
-				this.runSearch();
-			break;
-		}
-	},
-
-	runParse: function() {
 		var model = this.model;
-		var view = this;
+		model.set("article", null);
 
-		var node = this.$("[data-action=parse]");
-		node.html("parsing&hellip;");
-
-		var query = this.$("textarea[property=text]").val();
-
-		this.parse(query)
-			.done(function(data) {
-				node.html("parse");
-				model.set({ parsed: data, article: null });
-				view.runSearch();
-			})
-			.fail(function(data) {
-				node.html("parse");
-			});
-	},
-
-	runSearch: function() {
 		var node = this.$("[data-action=search]");
 		node.html("searching&hellip;");
 
-		var model = this.model;
-
-		var query = this.$("textarea[property=query]").val();
+		var query = model.get("text");
 
 		this.search(query)
 			.done(function(data) {
@@ -86,27 +47,20 @@ Views.Citation = Backbone.View.extend({
 			});
 	},
 
-	parse: function(text) {
-		return $.ajaxQueue({
-			url: "http://www.hubmed.org/citation-min.cgi",
-			data: { text: text },
-		})
-	},
-
 	search: function(text) {
 		var model = this.model;
 
 		return $.Deferred(function(dfd) {
 			app.services.pubmed.search(text).done(function(doc) {
-
 				var id = document.evaluate("/eSearchResult/IdList/Id", doc, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 				if (!id) {
 					dfd.reject();
 					return dfd.promise();
 				}
 
-				app.services.pubmed.fetch({ id: id.textContent }).done(function(data) {
-					dfd.resolve(data[0]);
+				app.services.pubmed.fetch(id.textContent).done(function(data) {
+					var items = app.services.pubmed.parse(data);
+					dfd.resolve(items[0]);
 					return dfd.promise();
 				});
 			});
@@ -144,11 +98,11 @@ Views.Input = Backbone.View.extend({
 	render: function() {
 		var html = Templates.Input();
 		this.$el.empty().append(html);
-		//this.$("textarea").expandingTextarea();
+		this.$("textarea").expandingTextarea();
 	},
 
 	events: {
-		"submit": "splitCitations"
+		"submit": "splitCitations",
 	},
 
 	splitCitations: function(event) {
@@ -191,5 +145,38 @@ Views.Input = Backbone.View.extend({
 		});
 
 		app.collections.citations.reset(items);
+
+		app.views.citations.$("button[data-action=search]").click();
+
+		app.views.download.$el.show();
 	}
+});
+
+Views.Download = Backbone.View.extend({
+	events: {
+		"click #download-all button": "downloadAll"
+	},
+
+	initialize: function() {
+		this.render();
+	},
+
+	render: function() {
+		this.$el.html(Templates.Download());
+	},
+
+	downloadAll: function(event) {
+		var button = $(event.target);
+
+		var pmids = $("article[data-pmid]").map(function() {
+			return $(this).data("pmid");
+		});
+
+		var params = {
+			format: button.data("format"),
+			id: pmids.toArray().join(",")
+		};
+
+		window.location.href  = "http://pubmed.macropus.org/articles/?" + $.param(params);
+	},
 });

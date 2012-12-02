@@ -9,8 +9,9 @@ textarea {
 	border: none;
 }
 
-#input textarea {
-	height: 150px;
+pre {
+	padding: 0;
+	font-size: 0;
 }
 
 [hidden], .hidden {
@@ -34,7 +35,7 @@ li {
 	box-shadow: 0 0 3px #777 inset;
 }
 
-button, input[type=submit] {
+button[type=submit] {
 	display: block;
 	width: 100%;
 }
@@ -56,6 +57,24 @@ table {
 	margin: 10px 0;
 }
 
+form {
+	margin: 0;
+}
+
+#input {
+	margin-bottom: 20px;
+}
+
 .citation {
 	margin-bottom: 10px;
+}
+
+#download-all {
+	padding: 10px 0;
+	display: none;
+}
+
+#input textarea, #input .textareaClone {
+	min-height: 100px;
+	max-height: 400px;
 }
