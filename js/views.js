@@ -137,7 +137,10 @@ Views.Input = Backbone.View.extend({
 		var items = [];
 
 		text.split(/-split-/g).forEach(function(item) {
+			item = item.replace(/[\n\r]+/g, " ");
 			item = $.trim(item);
+			item = item.replace(/\.$/, "");
+			item = item.replace(/(\d+)\s*[-–]\s*(\d+)$/, "$1-$2"); // remove extra spaces in pagination
 
 			if (item.length) {
 				items.push({ text: item });
