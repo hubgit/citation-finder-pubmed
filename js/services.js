@@ -11,8 +11,6 @@ Service.prototype.get = function(options) {
 var PubMed = function(options) {
 	this.defaults = $.extend({}, options);
 
-	this.url = $("link[rel='service.pubmed']").attr("href");
-
 	this.search = function(term) {
 		var data = {
 			db: "pubmed",
