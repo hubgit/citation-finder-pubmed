@@ -23,7 +23,7 @@ var PubMed = function(options) {
 	};
 
 	this.fetch = function(data) {
-		return this.get({ url: this.url, data: data });
+		return this.get({ url: "http://pubmed.macropus.org/articles/", data: data });
 	};
 };
 
